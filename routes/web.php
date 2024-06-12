@@ -308,20 +308,20 @@ Route::middleware(['auth'])->group(function () {
             'server_id' => $server_id ?? null,
         ]);
     })->name('destination.all');
-    // Route::get('/destination/new', function () {
-    //     $servers = Server::isUsable()->get();
-    //     $pre_selected_server_uuid = data_get(request()->query(), 'server');
-    //     if ($pre_selected_server_uuid) {
-    //         $server = $servers->firstWhere('uuid', $pre_selected_server_uuid);
-    //         if ($server) {
-    //             $server_id = $server->id;
-    //         }
-    //     }
-    //     return view('destination.new', [
-    //         "servers" => $servers,
-    //         "server_id" => $server_id ?? null,
-    //     ]);
-    // })->name('destination.new');
+    Route::get('/destination/new', function () {
+        $servers = Server::isUsable()->get();
+        $pre_selected_server_uuid = data_get(request()->query(), 'server');
+        if ($pre_selected_server_uuid) {
+            $server = $servers->firstWhere('uuid', $pre_selected_server_uuid);
+            if ($server) {
+                $server_id = $server->id;
+            }
+        }
+        return view('destination.new', [
+            "servers" => $servers,
+            "server_id" => $server_id ?? null,
+        ]);
+    })->name('destination.new');
     Route::get('/destination/{destination_uuid}', function () {
         $standalone_dockers = StandaloneDocker::where('uuid', request()->destination_uuid)->first();
         $swarm_dockers = SwarmDocker::where('uuid', request()->destination_uuid)->first();

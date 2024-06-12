@@ -52,40 +52,4 @@ class Handler extends ExceptionHandler
 
         return redirect()->guest($exception->redirectTo() ?? route('login'));
     }
-
-    /**
-     * Register the exception handling callbacks for the application.
-     */
-    public function register(): void
-    {
-        $this->reportable(function (Throwable $e) {
-            if (isDev()) {
-                return;
-            }
-            if ($e instanceof RuntimeException) {
-                return;
-            }
-            $this->settings = InstanceSettings::get();
-            if ($this->settings->do_not_track) {
-                return;
-            }
-            app('sentry')->configureScope(
-                function (Scope $scope) {
-                    $email = auth()?->user() ? auth()->user()->email : 'guest';
-                    $instanceAdmin = User::find(0)->email ?? 'admin@localhost';
-                    $scope->setUser(
-                        [
-                            'email' => $email,
-                            'instanceAdmin' => $instanceAdmin,
-                        ]
-                    );
-                }
-            );
-            if (str($e->getMessage())->contains('No space left on device')) {
-                return;
-            }
-            ray('reporting to sentry');
-            Integration::captureUnhandledException($e);
-        });
-    }
 }
